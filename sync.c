@@ -217,8 +217,6 @@ static struct sync_file_info *modern_sync_file_info(int fd)
                   local_info.num_fences * sizeof(struct sync_fence_info));
     if (!info)
         return NULL;
-
-    info->num_fences = local_info.num_fences;
     info->sync_fence_info = (__u64)(uintptr_t)(info + 1);
 
     err = ioctl(fd, SYNC_IOC_FILE_INFO, info);
@@ -277,6 +275,7 @@ static struct sync_file_info* legacy_fence_info_to_sync_file_info(
     info = calloc(1, sizeof(struct sync_file_info) +
                      num_fences * sizeof(struct sync_fence_info));
     if (!info) {
+        free(legacy_info);
         return NULL;
     }
     info->sync_fence_info = (__u64)(uintptr_t)(info + 1);
